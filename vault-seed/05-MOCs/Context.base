@@ -1,0 +1,24 @@
+filters:
+  and:
+    - file.hasTag("type/context")
+    - 'file.ext == "md"'
+
+formulas:
+  age_days: '(now() - file.ctime).days.round(0)'
+  decay_status: 'if(file.hasTag("status/decayed"), "⚠️ Decayed", "✓ Active")'
+
+properties:
+  formula.age_days:
+    displayName: "Age (days)"
+  formula.decay_status:
+    displayName: "Status"
+
+views:
+  - type: table
+    name: "All Context"
+    order:
+      - file.name
+      - source_project
+      - confidence
+      - formula.decay_status
+      - formula.age_days

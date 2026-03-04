@@ -1,0 +1,21 @@
+filters:
+  and:
+    - file.hasTag("type/gotcha")
+    - 'file.ext == "md"'
+
+formulas:
+  age_days: '(now() - file.ctime).days.round(0)'
+
+properties:
+  formula.age_days:
+    displayName: "Age (days)"
+
+views:
+  - type: table
+    name: "All Gotchas"
+    order:
+      - file.name
+      - source_project
+      - confidence
+      - date_created
+      - formula.age_days

@@ -1,0 +1,23 @@
+filters:
+  not:
+    - file.hasTag("status/archived")
+    - file.hasTag("status/decayed")
+
+formulas:
+  age_days: '(now() - file.ctime).days.round(0)'
+
+properties:
+  formula.age_days:
+    displayName: "Age (days)"
+
+views:
+  - type: table
+    name: "Notes by Project"
+    order:
+      - file.name
+      - type
+      - confidence
+      - formula.age_days
+    groupBy:
+      property: source_project
+      direction: ASC

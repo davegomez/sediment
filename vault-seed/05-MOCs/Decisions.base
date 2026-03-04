@@ -1,0 +1,24 @@
+filters:
+  and:
+    - file.hasTag("type/decision")
+    - 'file.ext == "md"'
+
+formulas:
+  age_days: '(now() - file.ctime).days.round(0)'
+
+properties:
+  formula.age_days:
+    displayName: "Age (days)"
+
+views:
+  - type: table
+    name: "All Decisions"
+    order:
+      - file.name
+      - source_project
+      - confidence
+      - date_created
+      - formula.age_days
+    groupBy:
+      property: source_project
+      direction: ASC
