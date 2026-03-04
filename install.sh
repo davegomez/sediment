@@ -403,6 +403,13 @@ create_vault_structure() {
 
 # ─── Step 12: Config ─────────────────────────────────────────────────────────
 
+copy_uninstaller() {
+  info "Copying uninstaller..."
+  cp "$SCRIPT_DIR/uninstall.sh" "$SEDIMENT_DIR/uninstall.sh"
+  chmod +x "$SEDIMENT_DIR/uninstall.sh"
+  ok "Uninstaller available at $SEDIMENT_DIR/uninstall.sh"
+}
+
 write_config() {
   info "Writing config..."
 
@@ -459,7 +466,7 @@ print_summary() {
   echo "  Open your vault in Obsidian to browse captured notes."
   echo "  Notes land in 00-Inbox/ — promote them to 01-03 after review."
   echo ""
-  echo "  To uninstall: ./uninstall.sh"
+  echo "  To uninstall: ~/.sediment/uninstall.sh"
   echo ""
 }
 
@@ -497,6 +504,7 @@ main() {
   install_claude_code_hooks
   install_pi_extension
   create_vault_structure
+  copy_uninstaller
   write_config
   print_summary
 }
