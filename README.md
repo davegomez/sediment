@@ -25,7 +25,13 @@ No external API calls. The agent doing your coding work is the same one writing 
 ## Installation
 
 ```bash
-git clone https://github.com/user/sediment.git
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/davegomez/sediment/main/bootstrap.sh)"
+```
+
+Or clone and run manually:
+
+```bash
+git clone https://github.com/davegomez/sediment.git
 cd sediment
 ./install.sh
 ```
@@ -151,8 +157,7 @@ The `05-MOCs/` folder contains [Obsidian Bases](https://help.obsidian.md/bases) 
 ## Uninstalling
 
 ```bash
-cd sediment
-./uninstall.sh
+~/.sediment/uninstall.sh
 ```
 
 This removes hooks, extensions, skills, and `~/.sediment/`. Your vault is left untouched. CLI tools (`obsidian-cli`, `defuddle-cli`) are left installed.
