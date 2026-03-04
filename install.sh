@@ -236,10 +236,9 @@ install_obsidian_skills() {
 
   local tmp_dir
   tmp_dir=$(mktemp -d)
-  trap 'rm -rf "$tmp_dir"' RETURN
 
   git clone --depth 1 --quiet https://github.com/kepano/obsidian-skills.git "$tmp_dir/obsidian-skills" 2>/dev/null \
-    || { warn "Failed to clone obsidian-skills (non-fatal, skipping)"; return 0; }
+    || { warn "Failed to clone obsidian-skills (non-fatal, skipping)"; rm -rf "$tmp_dir"; return 0; }
 
   local skill_names=("obsidian-markdown" "obsidian-bases" "json-canvas" "obsidian-cli" "defuddle")
 
@@ -256,6 +255,7 @@ install_obsidian_skills() {
     done
   done
 
+  rm -rf "$tmp_dir"
   ok "Obsidian skills installed"
 }
 
