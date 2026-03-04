@@ -44,14 +44,14 @@ The installer will:
 
 ## What Gets Installed
 
-| Component | Global location | Project location |
-|-----------|----------------|-----------------|
-| Claude Code hooks | `~/.claude/settings.json` | `.claude/settings.json` |
-| Claude Code skills | `~/.claude/skills/` | `.claude/skills/` |
-| Pi extension | `~/.pi/agent/extensions/sediment/` | `.pi/extensions/sediment/` |
-| Pi skills | `~/.pi/agent/skills/` | `.pi/skills/` |
-| Scripts | `~/.sediment/scripts/` | `~/.sediment/scripts/` |
-| Config | `~/.sediment/config.json` | `~/.sediment/config.json` |
+| Component          | Global location                    | Project location           |
+| ------------------ | ---------------------------------- | -------------------------- |
+| Claude Code hooks  | `~/.claude/settings.json`          | `.claude/settings.json`    |
+| Claude Code skills | `~/.claude/skills/`                | `.claude/skills/`          |
+| Pi extension       | `~/.pi/agent/extensions/sediment/` | `.pi/extensions/sediment/` |
+| Pi skills          | `~/.pi/agent/skills/`              | `.pi/skills/`              |
+| Scripts            | `~/.sediment/scripts/`             | `~/.sediment/scripts/`     |
+| Config             | `~/.sediment/config.json`          | `~/.sediment/config.json`  |
 
 ## Vault Structure
 
@@ -71,13 +71,13 @@ Folders represent lifecycle stage, not topic. Tags and frontmatter handle topica
 
 ## Note Types
 
-| Type | What it captures | Default confidence |
-|------|-----------------|-------------------|
-| **Decision** | Technology or design choice with reasoning, alternatives, consequences | 0.9 |
-| **Pattern** | Reusable technique — what it is, when to use it, trade-offs | 0.85 |
-| **Gotcha** | Surprising problem — what went wrong, root cause, solution | 0.9 |
-| **Context** | Domain/project background — key facts and implications | 0.7 |
-| **Progress** | Session milestone — what was accomplished, next steps | 0.6 |
+| Type         | What it captures                                                       | Default confidence |
+| ------------ | ---------------------------------------------------------------------- | ------------------ |
+| **Decision** | Technology or design choice with reasoning, alternatives, consequences | 0.9                |
+| **Pattern**  | Reusable technique — what it is, when to use it, trade-offs            | 0.85               |
+| **Gotcha**   | Surprising problem — what went wrong, root cause, solution             | 0.9                |
+| **Context**  | Domain/project background — key facts and implications                 | 0.7                |
+| **Progress** | Session milestone — what was accomplished, next steps                  | 0.6                |
 
 Notes use Zettelkasten-style naming: `YYYYMMDDHHmm-slugified-title.md`
 
@@ -91,11 +91,11 @@ A **Stop hook** fires at the end of each session. It blocks the agent from stopp
 
 Pi uses **deferred distillation**. When a session ends, an extension writes a marker file. At the start of the next session, the extension detects the marker and sends a message asking the agent to distill the previous session.
 
-| | Claude Code | Pi |
-|---|---|---|
-| **When** | End of current session | Start of next session |
-| **Mechanism** | Stop hook block/allow | Extension + sendUserMessage |
-| **Reliability** | Always fires | Requires starting another session |
+|                 | Claude Code            | Pi                                |
+| --------------- | ---------------------- | --------------------------------- |
+| **When**        | End of current session | Start of next session             |
+| **Mechanism**   | Stop hook block/allow  | Extension + sendUserMessage       |
+| **Reliability** | Always fires           | Requires starting another session |
 
 ## How Retrieval Works
 
@@ -117,11 +117,11 @@ GOTCHAS:
 
 Not every note stays relevant forever. A decay script runs at session start:
 
-| Note type | Decays after | Scope |
-|-----------|-------------|-------|
-| Progress | 7 days | `00-Inbox/` only |
-| Context | 30 days | `00-Inbox/` only |
-| Decision, Pattern, Gotcha | Never | — |
+| Note type                 | Decays after | Scope            |
+| ------------------------- | ------------ | ---------------- |
+| Progress                  | 7 days       | `00-Inbox/` only |
+| Context                   | 30 days      | `00-Inbox/` only |
+| Decision, Pattern, Gotcha | Never        | —                |
 
 Decay replaces the `status/unreviewed` tag with `status/decayed`. No files are moved or deleted. Promoted notes (in `01–03`) are permanent — only inbox notes decay.
 
@@ -159,4 +159,4 @@ This removes hooks, extensions, skills, and `~/.sediment/`. Your vault is left u
 
 ## License
 
-MIT
+AGPL-3.0-or-later

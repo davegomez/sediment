@@ -15,6 +15,7 @@
 ### Task 1: Repo Scaffolding
 
 **Files:**
+
 - Create: `README.md`
 - Create: `.gitignore`
 - Create: `LICENSE`
@@ -30,13 +31,13 @@ tmp/
 
 **Step 2: Create LICENSE**
 
-MIT license with current year and author.
+AGPL-3.0-or-later license with current year and author.
 
 **Step 3: Create README.md**
 
 Minimal placeholder — will be fleshed out in the final task.
 
-```markdown
+````markdown
 # Sediment
 
 A passive second brain for coding sessions. Automatically distills decisions, patterns, gotchas, context, and progress from Claude Code and Pi sessions into an Obsidian vault.
@@ -48,24 +49,27 @@ git clone https://github.com/user/sediment.git
 cd sediment
 ./install.sh
 ```
+````
 
 ## Documentation
 
 See `docs/plans/2026-03-04-sediment-design.md` for the full architecture.
-```
+
+````
 
 **Step 4: Commit**
 
 ```bash
 git add .gitignore LICENSE README.md
 git commit -m "feat: repo scaffolding with README, LICENSE, gitignore"
-```
+````
 
 ---
 
 ### Task 2: Vault Seed — Folder Structure and Templates
 
 **Files:**
+
 - Create: `vault-seed/00-Inbox/.gitkeep`
 - Create: `vault-seed/01-Decisions/.gitkeep`
 - Create: `vault-seed/02-Patterns/.gitkeep`
@@ -90,6 +94,7 @@ mkdir -p vault-seed/_templates
 **Step 2: Create decision template**
 
 `vault-seed/_templates/decision.md`:
+
 ```markdown
 ---
 title: ""
@@ -105,15 +110,19 @@ related: []
 ---
 
 ## Context
+
 <!-- What situation prompted this decision? -->
 
 ## Decision
+
 <!-- What was decided? -->
 
 ## Alternatives Considered
+
 <!-- What else was evaluated, with pros and cons? -->
 
 ## Consequences
+
 - **Positive**:
 - **Negative**:
 ```
@@ -121,6 +130,7 @@ related: []
 **Step 3: Create pattern template**
 
 `vault-seed/_templates/pattern.md`:
+
 ```markdown
 ---
 title: ""
@@ -136,21 +146,26 @@ related: []
 ---
 
 ## Pattern
+
 <!-- What is the reusable approach? -->
 
 ## When to Use
+
 <!-- What conditions make this applicable? -->
 
 ## Example
+
 <!-- Concrete usage example -->
 
 ## Trade-offs
+
 <!-- What are the limitations? -->
 ```
 
 **Step 4: Create gotcha template**
 
 `vault-seed/_templates/gotcha.md`:
+
 ```markdown
 ---
 title: ""
@@ -166,18 +181,22 @@ related: []
 ---
 
 ## Problem
+
 <!-- What went wrong or was surprising? -->
 
 ## Root Cause
+
 <!-- Why does this happen? -->
 
 ## Solution
+
 <!-- How to fix or avoid it -->
 ```
 
 **Step 5: Create context template**
 
 `vault-seed/_templates/context.md`:
+
 ```markdown
 ---
 title: ""
@@ -193,18 +212,22 @@ related: []
 ---
 
 ## Background
+
 <!-- What domain/project knowledge was established? -->
 
 ## Key Facts
+
 <!-- Important details worth remembering -->
 
 ## Implications
+
 <!-- How does this affect future work? -->
 ```
 
 **Step 6: Create progress template**
 
 `vault-seed/_templates/progress.md`:
+
 ```markdown
 ---
 title: ""
@@ -220,9 +243,11 @@ related: []
 ---
 
 ## Accomplished
+
 <!-- What was done in this session? -->
 
 ## Next Steps
+
 <!-- What remains to be done? -->
 ```
 
@@ -238,6 +263,7 @@ git commit -m "feat: vault seed with folder structure and note templates"
 ### Task 3: Vault Seed — Obsidian Bases MOCs
 
 **Files:**
+
 - Create: `vault-seed/05-MOCs/Inbox.base`
 - Create: `vault-seed/05-MOCs/Decisions.base`
 - Create: `vault-seed/05-MOCs/Patterns.base`
@@ -258,7 +284,7 @@ filters:
     - file.hasTag("status/unreviewed")
 
 formulas:
-  age_days: '(now() - file.ctime).days.round(0)'
+  age_days: "(now() - file.ctime).days.round(0)"
 
 properties:
   formula.age_days:
@@ -287,7 +313,7 @@ filters:
     - 'file.ext == "md"'
 
 formulas:
-  age_days: '(now() - file.ctime).days.round(0)'
+  age_days: "(now() - file.ctime).days.round(0)"
 
 properties:
   formula.age_days:
@@ -316,7 +342,7 @@ filters:
     - 'file.ext == "md"'
 
 formulas:
-  age_days: '(now() - file.ctime).days.round(0)'
+  age_days: "(now() - file.ctime).days.round(0)"
 
 properties:
   formula.age_days:
@@ -342,7 +368,7 @@ filters:
     - 'file.ext == "md"'
 
 formulas:
-  age_days: '(now() - file.ctime).days.round(0)'
+  age_days: "(now() - file.ctime).days.round(0)"
 
 properties:
   formula.age_days:
@@ -368,7 +394,7 @@ filters:
     - 'file.ext == "md"'
 
 formulas:
-  age_days: '(now() - file.ctime).days.round(0)'
+  age_days: "(now() - file.ctime).days.round(0)"
   decay_status: 'if(file.hasTag("status/decayed"), "⚠️ Decayed", "✓ Active")'
 
 properties:
@@ -397,7 +423,7 @@ filters:
     - 'file.ext == "md"'
 
 formulas:
-  age_days: '(now() - file.ctime).days.round(0)'
+  age_days: "(now() - file.ctime).days.round(0)"
   decay_status: 'if(file.hasTag("status/decayed"), "⚠️ Decayed", "✓ Active")'
 
 properties:
@@ -426,7 +452,7 @@ filters:
     - file.hasTag("status/decayed")
 
 formulas:
-  age_days: '(now() - file.ctime).days.round(0)'
+  age_days: "(now() - file.ctime).days.round(0)"
 
 properties:
   formula.age_days:
@@ -455,7 +481,7 @@ filters:
     - file.hasTag("status/archived")
 
 formulas:
-  age_days: '(now() - file.ctime).days.round(0)'
+  age_days: "(now() - file.ctime).days.round(0)"
 
 properties:
   formula.age_days:
@@ -491,6 +517,7 @@ git commit -m "feat: Obsidian Bases MOCs for inbox, types, project, and activity
 ### Task 4: Sediment-Writer Skill
 
 **Files:**
+
 - Create: `skills/sediment-writer/SKILL.md`
 - Create: `skills/sediment-writer/references/templates.md`
 - Create: `skills/sediment-writer/references/tag-taxonomy.md`
@@ -501,6 +528,7 @@ git commit -m "feat: Obsidian Bases MOCs for inbox, types, project, and activity
 `skills/sediment-writer/SKILL.md`:
 
 The main skill file with frontmatter and instructions. Contains:
+
 - `name: sediment-writer`
 - `description` matching distillation/capture triggers
 - Process: evaluate → extract → deduplicate → write → link
@@ -522,6 +550,7 @@ Contains all five note templates (decision, pattern, gotcha, context, progress) 
 `skills/sediment-writer/references/tag-taxonomy.md`:
 
 Contains the full tag taxonomy:
+
 - Status tags (unreviewed, reviewed, archived, decayed)
 - Type tags (decision, pattern, gotcha, context, progress)
 - Topic tags (freeform convention)
@@ -552,6 +581,7 @@ git commit -m "feat: sediment-writer skill with templates, taxonomy, and example
 ### Task 5: Shared Scripts — Confidence Decay
 
 **Files:**
+
 - Create: `scripts/sediment-decay.sh`
 
 **Step 1: Write the decay script**
@@ -632,6 +662,7 @@ git commit -m "feat: confidence decay script for inbox notes"
 ### Task 6: Shared Scripts — Context Injection
 
 **Files:**
+
 - Create: `scripts/sediment-context.sh`
 
 **Step 1: Write the context injection script**
@@ -794,6 +825,7 @@ git commit -m "feat: context injection script for session-start retrieval"
 ### Task 7: Shared Scripts — Capture Hook (Claude Code)
 
 **Files:**
+
 - Create: `scripts/sediment-capture.sh`
 
 **Step 1: Write the capture script**
@@ -855,6 +887,7 @@ git commit -m "feat: capture hook script for Claude Code Stop event"
 ### Task 8: Pi Extension
 
 **Files:**
+
 - Create: `extensions/sediment/index.ts`
 
 **Step 1: Write the Pi extension**
@@ -899,15 +932,17 @@ export default function (pi: ExtensionAPI) {
         if (config) {
           pi.sendUserMessage(
             `A previous coding session ended without distillation. ` +
-            `Follow the sediment-writer skill to distill it. ` +
-            `Evaluate whether any decisions, patterns, gotchas, context, or progress are worth capturing. ` +
-            `If nothing meaningful, say so and move on. ` +
-            `Write any notes to ${config.vault_path}/00-Inbox/.`
+              `Follow the sediment-writer skill to distill it. ` +
+              `Evaluate whether any decisions, patterns, gotchas, context, or progress are worth capturing. ` +
+              `If nothing meaningful, say so and move on. ` +
+              `Write any notes to ${config.vault_path}/00-Inbox/.`,
           );
         }
       } catch {
         // If pending file is corrupt, just remove it
-        try { fs.unlinkSync(pendingPath); } catch {}
+        try {
+          fs.unlinkSync(pendingPath);
+        } catch {}
       }
     }
   });
@@ -917,7 +952,9 @@ export default function (pi: ExtensionAPI) {
     const contextScript = path.join(scriptsDir, "sediment-context.sh");
     if (!fs.existsSync(contextScript)) return;
 
-    const result = await pi.exec("bash", [contextScript, ctx.cwd], { timeout: 10000 });
+    const result = await pi.exec("bash", [contextScript, ctx.cwd], {
+      timeout: 10000,
+    });
     if (result.code === 0 && result.stdout.trim()) {
       return {
         systemPrompt: event.systemPrompt + "\n\n" + result.stdout.trim(),
@@ -933,7 +970,7 @@ export default function (pi: ExtensionAPI) {
     // Only mark if session had meaningful work (3+ assistant messages)
     const entries = ctx.sessionManager.getEntries();
     const assistantCount = entries.filter(
-      (e) => e.type === "message" && e.message.role === "assistant"
+      (e) => e.type === "message" && e.message.role === "assistant",
     ).length;
     if (assistantCount < 3) return;
 
@@ -946,7 +983,7 @@ export default function (pi: ExtensionAPI) {
       JSON.stringify({
         sessionFile,
         timestamp: Date.now(),
-      })
+      }),
     );
   });
 }
@@ -964,6 +1001,7 @@ git commit -m "feat: Pi extension for deferred distillation and context injectio
 ### Task 9: Install Script
 
 **Files:**
+
 - Create: `install.sh`
 
 This is the largest task. The script is organized as functions called from `main()`.
@@ -1016,6 +1054,7 @@ git commit -m "feat: install script for Sediment setup"
 ### Task 10: Uninstall Script
 
 **Files:**
+
 - Create: `uninstall.sh`
 
 **Step 1: Write uninstall.sh**
@@ -1043,6 +1082,7 @@ git commit -m "feat: uninstall script to reverse Sediment setup"
 ### Task 11: README
 
 **Files:**
+
 - Modify: `README.md`
 
 **Step 1: Write full README**
@@ -1061,7 +1101,7 @@ Replace the placeholder README with complete documentation:
 - **Confidence decay** — rules for progress and context notes
 - **Reviewing notes** — how to promote from inbox, how MOCs work
 - **Uninstalling** — `./uninstall.sh`
-- **License** — MIT
+- **License** — AGPL-3.0-or-later
 
 **Step 2: Commit**
 
@@ -1081,6 +1121,7 @@ find . -not -path './.git/*' -not -name '.DS_Store' | sort
 ```
 
 Expected:
+
 ```
 .
 ./README.md
