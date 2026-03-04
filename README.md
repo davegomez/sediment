@@ -93,15 +93,21 @@ Notes use Zettelkasten-style naming: `YYYYMMDDHHmm-slugified-title.md`
 
 A **Stop hook** fires at the end of each session. It blocks the agent from stopping and asks it to follow the `sediment-writer` skill. The agent evaluates the session, writes any notes worth capturing, then stops. A `stop_hook_active` flag prevents infinite loops.
 
+A **PreCompact hook** runs before `/compact` or auto-compaction, placing a marker that the Stop hook picks up. When distillation eventually fires, the instruction tells Claude to pay extra attention to the compaction summary so knowledge from the compressed portion isn't overlooked.
+
 ### Pi
 
-Pi uses **deferred distillation**. When a session ends, an extension writes a marker file. At the start of the next session, the extension detects the marker and sends a message asking the agent to distill the previous session.
+Pi uses **deferred distillation** and **inline distillation** depending on the trigger:
 
-|                 | Claude Code            | Pi                                |
-| --------------- | ---------------------- | --------------------------------- |
-| **When**        | End of current session | Start of next session             |
-| **Mechanism**   | Stop hook block/allow  | Extension + sendUserMessage       |
-| **Reliability** | Always fires           | Requires starting another session |
+- **Session end** — `session_shutdown` writes a marker file. At the start of the next session, the extension detects the marker and sends a message asking the agent to distill the previous session.
+- **Compaction** — `session_compact` triggers inline distillation immediately after `/compact` or auto-compaction, while the compaction summary is still fresh.
+- **New session** — `session_before_switch` saves a marker before `/new`, and `session_switch` triggers distillation at the start of the new session.
+
+|                 | Claude Code             | Pi                                        |
+| --------------- | ----------------------- | ----------------------------------------- |
+| **Session end** | Stop hook (blocks)      | Deferred to next session start            |
+| **Compaction**  | PreCompact marker → Stop hook notes it | Inline distillation via sendUserMessage |
+| **New session** | N/A                     | Marker saved before switch, distilled after |
 
 ## How Retrieval Works
 

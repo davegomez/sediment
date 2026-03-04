@@ -155,18 +155,25 @@ project/<freeform>      # e.g., project/user-service
 
 ## Capture Mechanism
 
-### Claude Code: Stop Hook
+### Claude Code: Hooks
 
-A command hook on `Stop` blocks the agent from stopping and instructs it to distill. The `stop_hook_active` field prevents infinite loops.
+Three hooks handle capture:
+
+**Stop hook** — blocks the agent from stopping and instructs it to distill. The `stop_hook_active` field prevents infinite loops.
 
 Flow:
 
 1. Claude finishes responding → `Stop` fires.
-2. Hook checks `stop_hook_active` — if true, writes session marker, exits 0.
+2. Hook checks `stop_hook_active` — if true, writes session marker, cleans up compaction marker, exits 0.
 3. Hook checks session marker — if exists, exits 0.
-4. Hook returns `decision: "block"` with reason referencing the sediment-writer skill.
-5. Claude follows the skill: evaluates session content, writes notes to `00-Inbox/` (or decides nothing worth capturing and stops).
-6. Claude finishes → `Stop` fires again → `stop_hook_active` is true → marker written, exits 0.
+4. Hook checks for compaction marker (`.compacted`) — if present, appends a note to the distillation instruction telling Claude to pay attention to the compaction summary.
+5. Hook returns `decision: "block"` with reason referencing the sediment-writer skill.
+6. Claude follows the skill: evaluates session content, writes notes to `00-Inbox/` (or decides nothing worth capturing and stops).
+7. Claude finishes → `Stop` fires again → `stop_hook_active` is true → marker written, exits 0.
+
+**PreCompact hook** — runs before `/compact` or auto-compaction. Creates a `.compacted` marker file so the Stop hook knows compaction occurred. The `PreCompact` event cannot block or force the agent to act, so this marker is the bridge: when Claude eventually stops, the Stop hook sees the marker and enhances its distillation instruction.
+
+**SessionStart hook** — runs decay and context injection at session start.
 
 Hook config merged into `settings.json`:
 ```json
@@ -184,32 +191,41 @@ Hook config merged into `settings.json`:
         "type": "command",
         "command": "$HOME/.sediment/scripts/sediment-decay.sh && $HOME/.sediment/scripts/sediment-context.sh \"$PWD\""
       }]
+    }],
+    "PreCompact": [{
+      "hooks": [{
+        "type": "command",
+        "command": "$HOME/.sediment/scripts/sediment-precompact.sh"
+      }]
     }]
   }
 }
 ```
 
-### Pi: Extension (Deferred Distillation)
+### Pi: Extension
 
-Pi lacks `stop_hook_active` and a blockable Stop event. Instead, distillation is deferred to the next session.
+The extension uses five event handlers for capture:
 
-Flow:
+**`session_start`** — runs confidence decay and processes `pending.json` from a previous session (triggers distillation via `sendUserMessage` if found).
 
-1. Session ends → `session_shutdown` fires → extension writes `pending.json` with session info (only if session had 3+ assistant turns).
-2. Next session starts → `session_start` fires → extension detects `pending.json`.
-3. Extension calls `sendUserMessage()` with distillation instructions referencing the sediment-writer skill.
-4. Agent distills previous session, writes notes to vault.
-5. Agent finishes, user proceeds normally.
+**`session_shutdown`** — writes `pending.json` with session info (only if 3+ assistant turns) for the next session to pick up.
 
-The extension also handles retrieval: on `before_agent_start`, runs the decay and context scripts and injects output into the system prompt.
+**`session_compact`** — triggers inline distillation immediately after `/compact` or auto-compaction via `sendUserMessage`, while the compaction summary is still fresh. This is important because the detailed context has been compressed — deferring to session end would produce lower-quality notes.
+
+**`session_before_switch`** — on `/new`, writes `pending.json` for the current session before switching. This is needed because `session_shutdown` does not fire on `/new`.
+
+**`session_switch`** — on `/new`, processes `pending.json` in the new session (same logic as `session_start`), triggering deferred distillation.
+
+The extension also handles retrieval: on `before_agent_start`, runs the context script and injects output into the system prompt.
 
 ### Trade-off
 
 | | Claude Code | Pi |
 |---|---|---|
-| When | End of current session | Start of next session |
-| Reliability | Always fires | Requires user to start another session |
-| Mechanism | Stop hook block/allow | Extension + sendUserMessage |
+| Session end | Stop hook blocks, forces distillation | Deferred to next session start |
+| Compaction | PreCompact marker → Stop hook notes it | Inline distillation via sendUserMessage |
+| New session | N/A | Marker saved before switch, distilled after |
+| Mechanism | Hook scripts + exit codes | Extension + sendUserMessage |
 
 ## Sediment-Writer Skill
 
@@ -284,7 +300,8 @@ sediment/
 ├── scripts/
 │   ├── sediment-capture.sh
 │   ├── sediment-context.sh
-│   └── sediment-decay.sh
+│   ├── sediment-decay.sh
+│   └── sediment-precompact.sh
 ├── extensions/
 │   └── sediment/
 │       └── index.ts
@@ -328,7 +345,8 @@ sediment/
 └── scripts/
     ├── sediment-capture.sh
     ├── sediment-context.sh
-    └── sediment-decay.sh
+    ├── sediment-decay.sh
+    └── sediment-precompact.sh
 ```
 
 ### config.json
