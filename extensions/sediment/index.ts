@@ -7,6 +7,7 @@ export default function (pi: ExtensionAPI) {
   const configPath = path.join(home, ".sediment/config.json");
   const sessionsDir = path.join(home, ".sediment/sessions");
   const scriptsDir = path.join(home, ".sediment/scripts");
+  const pendingPath = path.join(sessionsDir, "pending.json");
 
   function readConfig(): { vault_path: string } | null {
     try {
@@ -16,42 +17,64 @@ export default function (pi: ExtensionAPI) {
     }
   }
 
+  /** Process pending.json and trigger distillation if found. */
+  function processPending(): void {
+    if (!fs.existsSync(pendingPath)) return;
+
+    try {
+      const pending = JSON.parse(fs.readFileSync(pendingPath, "utf-8"));
+      fs.unlinkSync(pendingPath);
+
+      const config = readConfig();
+      if (!config) return;
+
+      const sessionHint = pending.sessionFile
+        ? ` The previous session file is at ${pending.sessionFile} if you need to review it.`
+        : "";
+      pi.sendUserMessage(
+        `A previous coding session ended without distillation.` +
+          sessionHint +
+          ` Follow the sediment-writer skill to distill it.` +
+          ` Evaluate whether any decisions, patterns, gotchas, context, or progress are worth capturing.` +
+          ` If nothing meaningful, say so and move on.` +
+          ` Write any notes to ${config.vault_path}/00-Inbox/.`
+      );
+    } catch {
+      try {
+        fs.unlinkSync(pendingPath);
+      } catch {}
+    }
+  }
+
+  /**
+   * Write pending.json for the current session. Called from both
+   * session_shutdown (exit) and session_before_switch (/new).
+   */
+  function markPending(
+    entries: any[],
+    sessionFile: string | undefined
+  ): void {
+    const assistantCount = entries.filter(
+      (e: any) => e.type === "message" && e.message?.role === "assistant"
+    ).length;
+    if (assistantCount < 3) return;
+    if (!sessionFile) return;
+
+    fs.mkdirSync(sessionsDir, { recursive: true });
+    fs.writeFileSync(
+      pendingPath,
+      JSON.stringify({ sessionFile, timestamp: Date.now() })
+    );
+  }
+
   // --- Confidence decay + pending distillation at session start ---
-  pi.on("session_start", async (_event, ctx) => {
-    // Run decay script
+  pi.on("session_start", async (_event, _ctx) => {
     const decayScript = path.join(scriptsDir, "sediment-decay.sh");
     if (fs.existsSync(decayScript)) {
       await pi.exec("bash", [decayScript], { timeout: 10000 });
     }
 
-    // Check for pending distillation from previous session
-    const pendingPath = path.join(sessionsDir, "pending.json");
-    if (fs.existsSync(pendingPath)) {
-      try {
-        const pending = JSON.parse(fs.readFileSync(pendingPath, "utf-8"));
-        fs.unlinkSync(pendingPath);
-
-        const config = readConfig();
-        if (config) {
-          const sessionHint = pending.sessionFile
-            ? ` The previous session file is at ${pending.sessionFile} if you need to review it.`
-            : "";
-          pi.sendUserMessage(
-            `A previous coding session ended without distillation.` +
-              sessionHint +
-              ` Follow the sediment-writer skill to distill it.` +
-              ` Evaluate whether any decisions, patterns, gotchas, context, or progress are worth capturing.` +
-              ` If nothing meaningful, say so and move on.` +
-              ` Write any notes to ${config.vault_path}/00-Inbox/.`
-          );
-        }
-      } catch {
-        // If pending file is corrupt, just remove it
-        try {
-          fs.unlinkSync(pendingPath);
-        } catch {}
-      }
-    }
+    processPending();
   });
 
   // --- Context injection before each agent turn ---
@@ -69,28 +92,53 @@ export default function (pi: ExtensionAPI) {
     }
   });
 
+  // --- Distill after compaction ---
+  // Compaction compresses detailed context into a summary. Trigger
+  // distillation immediately so knowledge is captured while the
+  // compaction summary is still fresh.
+  pi.on("session_compact", async (_event, _ctx) => {
+    const config = readConfig();
+    if (!config) return;
+
+    pi.sendUserMessage(
+      `A compaction just occurred, compressing the previous conversation context.` +
+        ` Follow the sediment-writer skill to distill any important knowledge from this session so far.` +
+        ` Focus on the compaction summary for decisions, patterns, gotchas, or context worth capturing.` +
+        ` If nothing meaningful, say so and move on.` +
+        ` Write any notes to ${config.vault_path}/00-Inbox/.`
+    );
+  });
+
+  // --- Save pending before /new ---
+  // session_shutdown does NOT fire on /new, so we catch it here.
+  pi.on("session_before_switch", async (event, ctx) => {
+    if ((event as any).reason !== "new") return;
+
+    const config = readConfig();
+    if (!config) return;
+
+    markPending(
+      ctx.sessionManager.getEntries(),
+      ctx.sessionManager.getSessionFile() ?? undefined
+    );
+  });
+
+  // --- Distill pending after /new ---
+  // session_start only fires once at process startup. After /new we
+  // need to process pending.json ourselves.
+  pi.on("session_switch", async (event, _ctx) => {
+    if ((event as any).reason !== "new") return;
+    processPending();
+  });
+
   // --- Mark session for distillation on shutdown ---
   pi.on("session_shutdown", async (_event, ctx) => {
     const config = readConfig();
     if (!config) return;
 
-    // Only mark if session had meaningful work (3+ assistant messages)
-    const entries = ctx.sessionManager.getEntries();
-    const assistantCount = entries.filter(
-      (e: any) => e.type === "message" && e.message?.role === "assistant"
-    ).length;
-    if (assistantCount < 3) return;
-
-    const sessionFile = ctx.sessionManager.getSessionFile();
-    if (!sessionFile) return;
-
-    fs.mkdirSync(sessionsDir, { recursive: true });
-    fs.writeFileSync(
-      path.join(sessionsDir, "pending.json"),
-      JSON.stringify({
-        sessionFile,
-        timestamp: Date.now(),
-      })
+    markPending(
+      ctx.sessionManager.getEntries(),
+      ctx.sessionManager.getSessionFile() ?? undefined
     );
   });
 }

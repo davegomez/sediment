@@ -17,6 +17,7 @@ SESSION_ID=$(echo "$INPUT" | jq -r '.session_id')
 # Already continuing from a stop hook — allow stop, mark distilled
 if [ "$STOP_HOOK_ACTIVE" = "true" ]; then
   touch "$SESSIONS_DIR/$SESSION_ID.distilled"
+  rm -f "$SESSIONS_DIR/$SESSION_ID.compacted"
   exit 0
 fi
 
@@ -32,8 +33,15 @@ if [ ! -f "$CONFIG" ]; then
 fi
 VAULT_PATH=$(jq -r '.vault_path' "$CONFIG")
 
+# Check if compaction happened — enhances the distillation instruction
+COMPACTION_NOTE=""
+if [ -f "$SESSIONS_DIR/$SESSION_ID.compacted" ]; then
+  COMPACTION_NOTE=" Note: a compaction occurred during this session, so earlier conversation details have been compressed. Pay extra attention to the compaction summary for knowledge from the compacted portion."
+  rm -f "$SESSIONS_DIR/$SESSION_ID.compacted"
+fi
+
 # Block stop and instruct distillation
-jq -n --arg vault "$VAULT_PATH" '{
+jq -n --arg vault "$VAULT_PATH" --arg note "$COMPACTION_NOTE" '{
   decision: "block",
-  reason: ("Before ending, follow the sediment-writer skill to distill this session into your Obsidian vault. Evaluate whether any decisions, patterns, gotchas, context, or progress are worth capturing. If nothing meaningful occurred in this session, just say so and stop. Write any notes to " + $vault + "/00-Inbox/.")
+  reason: ("Before ending, follow the sediment-writer skill to distill this session into your Obsidian vault." + $note + " Evaluate whether any decisions, patterns, gotchas, context, or progress are worth capturing. If nothing meaningful occurred in this session, just say so and stop. Write any notes to " + $vault + "/00-Inbox/.")
 }'

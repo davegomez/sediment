@@ -289,9 +289,10 @@ install_claude_code_hooks() {
 
   # Copy scripts
   mkdir -p "$SEDIMENT_DIR/scripts"
-  cp "$SCRIPT_DIR/scripts/sediment-capture.sh" "$SEDIMENT_DIR/scripts/"
-  cp "$SCRIPT_DIR/scripts/sediment-context.sh" "$SEDIMENT_DIR/scripts/"
-  cp "$SCRIPT_DIR/scripts/sediment-decay.sh"   "$SEDIMENT_DIR/scripts/"
+  cp "$SCRIPT_DIR/scripts/sediment-capture.sh"    "$SEDIMENT_DIR/scripts/"
+  cp "$SCRIPT_DIR/scripts/sediment-context.sh"    "$SEDIMENT_DIR/scripts/"
+  cp "$SCRIPT_DIR/scripts/sediment-decay.sh"      "$SEDIMENT_DIR/scripts/"
+  cp "$SCRIPT_DIR/scripts/sediment-precompact.sh" "$SEDIMENT_DIR/scripts/"
   chmod +x "$SEDIMENT_DIR/scripts/"*.sh
 
   # Determine settings file
@@ -306,12 +307,14 @@ install_claude_code_hooks() {
 
   local capture_cmd="$SEDIMENT_DIR/scripts/sediment-capture.sh"
   local context_cmd="$SEDIMENT_DIR/scripts/sediment-decay.sh && $SEDIMENT_DIR/scripts/sediment-context.sh \"\$PWD\""
+  local precompact_cmd="$SEDIMENT_DIR/scripts/sediment-precompact.sh"
 
   # Build our hooks object
   local sediment_hooks
   sediment_hooks=$(jq -n \
     --arg capture "$capture_cmd" \
     --arg context "$context_cmd" \
+    --arg precompact "$precompact_cmd" \
     '{
       hooks: {
         Stop: [{
@@ -326,6 +329,12 @@ install_claude_code_hooks() {
             type: "command",
             command: $context
           }]
+        }],
+        PreCompact: [{
+          hooks: [{
+            type: "command",
+            command: $precompact
+          }]
         }]
       }
     }')
@@ -336,7 +345,8 @@ install_claude_code_hooks() {
     merged=$(jq --argjson new "$sediment_hooks" '
       .hooks //= {} |
       .hooks.Stop = (.hooks.Stop // []) + $new.hooks.Stop |
-      .hooks.SessionStart = (.hooks.SessionStart // []) + $new.hooks.SessionStart
+      .hooks.SessionStart = (.hooks.SessionStart // []) + $new.hooks.SessionStart |
+      .hooks.PreCompact = (.hooks.PreCompact // []) + $new.hooks.PreCompact
     ' "$settings_file")
     echo "$merged" > "$settings_file"
   else
