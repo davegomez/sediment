@@ -20,6 +20,7 @@ No external API calls. The agent doing your coding work is the same one writing 
 - **git**
 - **jq**
 - **Obsidian** ([download](https://obsidian.md)) — for viewing your vault
+- **Obsidian CLI** — enable in Obsidian under Settings → General → [Command line interface](https://help.obsidian.md/cli#Install+Obsidian+CLI) (requires Obsidian 1.12+ installer)
 - **Claude Code** and/or **Pi** — at least one must be installed
 
 ## Installation
@@ -42,7 +43,7 @@ The installer will:
 2. Detect which harnesses you have (Claude Code, Pi, or both)
 3. Ask for global or per-project install scope
 4. Auto-detect Obsidian vaults or create a new one
-5. Install CLI tools (`obsidian-cli`, `defuddle-cli`)
+5. Install CLI tools (`defuddle-cli`)
 6. Install Obsidian skills from [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills)
 7. Install the `sediment-writer` skill
 8. Set up hooks (Claude Code) and/or extensions (Pi)
@@ -166,7 +167,7 @@ The `05-MOCs/` folder contains [Obsidian Bases](https://help.obsidian.md/bases) 
 ~/.sediment/uninstall.sh
 ```
 
-This removes hooks, extensions, skills, and `~/.sediment/`. Your vault is left untouched. CLI tools (`obsidian-cli`, `defuddle-cli`) are left installed.
+This removes hooks, extensions, skills, and `~/.sediment/`. Your vault is left untouched. The `defuddle-cli` tool is left installed.
 
 ## License
 
