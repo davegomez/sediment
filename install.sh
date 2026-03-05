@@ -458,14 +458,14 @@ print_summary() {
   echo ""
 
   if [[ " ${HARNESSES[*]} " == *" claude-code "* ]]; then
-    echo "  ${BLUE}Claude Code:${NC} At the end of each session, the agent"
-    echo "  will automatically distill knowledge into your vault."
+    echo -e "  ${BLUE}Claude Code:${NC} At the end of each session, the agent"
+    echo "    will automatically distill knowledge into your vault."
     echo ""
   fi
 
   if [[ " ${HARNESSES[*]} " == *" pi "* ]]; then
-    echo "  ${BLUE}Pi:${NC} At the start of each session, the agent will"
-    echo "  distill the previous session into your vault."
+    echo -e "  ${BLUE}Pi:${NC} At the start of each session, the agent will"
+    echo "    distill the previous session into your vault."
     echo ""
   fi
 
