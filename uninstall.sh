@@ -158,10 +158,10 @@ print_summary() {
   echo -e "${GREEN}${BOLD}  Sediment uninstalled.${NC}"
   echo ""
   echo "  Your vault at $VAULT_PATH was left intact."
-  echo "  CLI tools (obsidian-cli, defuddle-cli) were left installed."
+  echo "  CLI tool (defuddle-cli) was left installed."
   echo ""
-  echo "  To remove them manually:"
-  echo "    npm uninstall -g obsidian-cli defuddle-cli"
+  echo "  To remove it manually:"
+  echo "    npm uninstall -g defuddle-cli"
   echo ""
 }
 

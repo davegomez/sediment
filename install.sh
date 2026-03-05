@@ -218,10 +218,6 @@ verify_obsidian() {
 install_cli_tools() {
   info "Installing CLI tools..."
 
-  if ! command -v obsidian-cli >/dev/null 2>&1; then
-    npm install -g obsidian-cli 2>/dev/null || warn "Failed to install obsidian-cli (non-fatal)"
-  fi
-
   if ! command -v defuddle >/dev/null 2>&1; then
     npm install -g defuddle-cli 2>/dev/null || warn "Failed to install defuddle-cli (non-fatal)"
   fi
