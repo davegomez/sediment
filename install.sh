@@ -234,7 +234,7 @@ install_obsidian_skills() {
   tmp_dir=$(mktemp -d)
 
   git clone --depth 1 --quiet https://github.com/kepano/obsidian-skills.git "$tmp_dir/obsidian-skills" 2>/dev/null \
-    || { warn "Failed to clone obsidian-skills (non-fatal, skipping)"; rm -rf "$tmp_dir"; return 0; }
+    || { rm -rf "$tmp_dir"; fail "Failed to clone obsidian-skills. Check your network connection and try again."; }
 
   local skill_names=("obsidian-markdown" "obsidian-bases" "json-canvas" "obsidian-cli" "defuddle")
 
@@ -244,7 +244,7 @@ install_obsidian_skills() {
     mkdir -p "$skills_dir"
 
     for skill in "${skill_names[@]}"; do
-      local src="$tmp_dir/obsidian-skills/$skill"
+      local src="$tmp_dir/obsidian-skills/skills/$skill"
       if [ -d "$src" ]; then
         cp -r "$src" "$skills_dir/"
       fi
