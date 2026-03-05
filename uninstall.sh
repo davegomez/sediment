@@ -1,14 +1,19 @@
 #!/bin/bash
 # Sediment Uninstaller
 # Reverses install.sh: removes hooks, extensions, skills, and ~/.sediment/.
-# Does NOT touch the vault or uninstall CLI tools.
+#
+# Deliberately does NOT touch:
+#   - The vault (user's notes are their data)
+#   - defuddle-cli (other tools may depend on it)
+#
+# Reads the saved config to know what was installed and where, so it
+# cleans up correctly regardless of scope (global vs project).
 
 set -euo pipefail
 
 SEDIMENT_DIR="$HOME/.sediment"
 CONFIG="$SEDIMENT_DIR/config.json"
 
-# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -22,6 +27,7 @@ warn()  { echo -e "${YELLOW}⚠${NC} $1"; }
 
 # ─── Read Config ──────────────────────────────────────────────────────────────
 
+# Without the config we don't know what was installed — bail early
 if [ ! -f "$CONFIG" ]; then
   echo -e "${RED}✗${NC} Sediment is not installed ($CONFIG not found)."
   exit 1
@@ -44,6 +50,7 @@ echo ""
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
+# Must mirror the same logic as install.sh so we look in the right place
 get_skills_dir() {
   local harness="$1"
   if [ "$harness" = "claude-code" ]; then
@@ -76,7 +83,9 @@ remove_claude_code_hooks() {
   fi
 
   if [ -f "$settings_file" ]; then
-    # Remove hook entries whose command contains "sediment"
+    # Filter out hook entries whose command mentions "sediment", leaving
+    # any non-sediment hooks the user may have configured intact.
+    # Empty hook arrays are cleaned up to avoid leftover {} in the file.
     local updated
     updated=$(jq '
       if .hooks then
@@ -125,6 +134,8 @@ remove_pi_extension() {
 # ─── Remove Skills ───────────────────────────────────────────────────────────
 
 remove_skills() {
+  # Remove both Sediment's own skill and the third-party Obsidian skills
+  # that the installer placed into the harness skills directories
   info "Removing skills..."
 
   local skill_names=("sediment-writer" "obsidian-markdown" "obsidian-bases" "json-canvas" "obsidian-cli" "defuddle")
@@ -146,6 +157,8 @@ remove_skills() {
 # ─── Remove Sediment Directory ────────────────────────────────────────────────
 
 remove_sediment_dir() {
+  # This removes config, scripts, session markers — everything under
+  # ~/.sediment/. The vault lives elsewhere and is untouched.
   info "Removing $SEDIMENT_DIR..."
   rm -rf "$SEDIMENT_DIR"
   ok "Sediment directory removed"

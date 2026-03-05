@@ -1,10 +1,13 @@
 #!/bin/bash
-# Claude Code PreCompact hook: marks that compaction is about to happen
-# so the Stop hook can reference it during distillation. The Stop hook
-# uses this marker to tell Claude to pay attention to the compaction
-# summary, improving note quality for the compacted portion.
+# Claude Code PreCompact hook — drops a marker file before compaction.
 #
-# Reads JSON from stdin (Claude Code hook input).
+# When Claude Code compacts a conversation, early messages are compressed
+# into a summary. If the Stop hook later fires for distillation, it
+# checks for this marker and tells the agent to pay extra attention to
+# the compaction summary. Without this, knowledge from the compressed
+# portion risks being overlooked during note extraction.
+#
+# Input: JSON on stdin (Claude Code hook payload with session_id)
 
 set -euo pipefail
 
@@ -14,4 +17,6 @@ mkdir -p "$SESSIONS_DIR"
 INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id')
 
+# The Stop hook (sediment-capture.sh) checks for this file and cleans
+# it up after incorporating the compaction note into its instructions
 touch "$SESSIONS_DIR/$SESSION_ID.compacted"
