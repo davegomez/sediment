@@ -26,7 +26,7 @@ No external API calls. The agent doing your coding work is the same one writing 
 ## Installation
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/davegomez/sediment/main/bootstrap.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/davegomez/sediment/main/install.sh)"
 ```
 
 Or clone and run manually:
@@ -48,6 +48,16 @@ The installer will:
 7. Install the `sediment-writer` skill
 8. Set up hooks (Claude Code) and/or extensions (Pi)
 9. Seed the vault with folders, templates, and MOC views
+
+### Updating
+
+Run the same command again:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/davegomez/sediment/main/install.sh)"
+```
+
+The installer detects the existing installation, skips all prompts, and refreshes skills, hooks, scripts, and extensions from the latest source. The version is updated in the config.
 
 ## What Gets Installed
 
